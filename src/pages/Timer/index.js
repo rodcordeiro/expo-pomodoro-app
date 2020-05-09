@@ -1,10 +1,13 @@
 import React, { useState, useRef } from "react";
-import { Text, TouchableOpacity } from "react-native";
+import { Text, TouchableOpacity, Alert } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialIcons } from "@expo/vector-icons";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
+import { useNavigation } from "@react-navigation/native";
 
 import { styles } from "./styles";
+
+const pomodor = 10; //10 sec
 
 function formatSeconds(seconds) {
   if (seconds < 60) {
@@ -15,10 +18,30 @@ function formatSeconds(seconds) {
 }
 
 export default function Timer() {
+  const navigation = useNavigation();
+
   const timerRef = useRef();
 
   const [timerEnabled, setTimerEnabled] = useState(false);
   const [secondsEllapsed, setSecondsEllapsed] = useState(0);
+
+  function timerController(){
+    if (secondsEllapsed == pomodor) {
+      toggleTimer()
+      Alert.alert(
+        'Pomodora app',
+        'The time has ended',
+        [
+          { text: 'OK', onPress: () => navigation.navigate("Welcome") },
+        ],
+        { cancelable: false }
+      );
+      
+      return "Done"
+    } else {
+      return formatSeconds(secondsEllapsed)
+    }
+  }
 
   function toggleTimer() {
     if (timerEnabled) {
@@ -41,13 +64,13 @@ export default function Timer() {
       <AnimatedCircularProgress
         size={300}
         width={12}
-        fill={(secondsEllapsed * 100) / 600}
+        fill={(secondsEllapsed * 100) / pomodor}
         tintColor="#75A1DE"
         rotation={0}
         backgroundColor="#fff"
       >
         {() => (
-          <Text style={styles.progress}>{formatSeconds(secondsEllapsed)}</Text>
+          <Text style={styles.progress}>{timerController()}</Text>
         )}
       </AnimatedCircularProgress>
 
